@@ -109,7 +109,7 @@ class NodeRestController extends FOSRestController
 		$em		  = $this->getDoctrine()->getManager('psi_db');
 		$nodeRepo = $em->getRepository('AppBundle:Node');
 
-		$jsonData = $request->get('name');
+		$jsonData = $request->get('data');
 		$data = json_decode($request->getContent(), true);
 
 		// Create the root node and hydrate it
@@ -119,6 +119,14 @@ class NodeRestController extends FOSRestController
 		$rootNode->setName('A synusy from my Angular app!');
 		$rootNode->setFrontId($data['frontId']);
 		$rootNode->setGeoJson($data['geoJson']);
+
+		$validation = new Validation;
+		$validation->setRepository('baseveg');
+		$validation->setRepositoryIdTaxo($data['validation']['validatedSyntaxonIdTaxo']);
+		$validation->setRepositoryIdNomen($data['validation']['validatedSyntaxonIdNomen']);
+		$validation->setInputName($data['validation']['validatedSyntaxonInputName']);
+		$validation->setValidatedName($data['validation']['validatedSyntaxonValidatedName']);
+		$rootNode->addValidation($validation);
 
 		// Iterate through nodes ; create children nodes and hydrate them
 		foreach ($data['nodes'] as $key => $node) {
