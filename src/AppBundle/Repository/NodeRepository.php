@@ -13,9 +13,32 @@ class NodeRepository extends \Doctrine\ORM\EntityRepository
 		$qb = $this->createQueryBuilder('n');
 
 		$qb->select('n')
-			->where('n.id = :id')
-			->setParameter('id', $id)
-			;
+		   ->leftJoin('n.children', 'children')
+		   ->leftJoin('children.validations', 'childrenValidations')
+		   ->leftJoin('n.validations', 'validations')
+		   ->addSelect('children')
+		   ->addSelect('childrenValidations')
+		   ->addSelect('validations');
+		   ->where('n.id = :id')
+		   ->setParameter('id', $id)
+		;
+
+		return $qb->getQuery()->getArrayResult();
+	}
+
+	public function findByIds($ids)
+	{
+		$qb = $this->createQueryBuilder('n');
+
+		$qb->select('n')
+		   ->leftJoin('n.children', 'children')
+		   ->leftJoin('children.validations', 'childrenValidations')
+		   ->leftJoin('n.validations', 'validations')
+		   ->addSelect('children')
+		   ->addSelect('childrenValidations')
+		   ->addSelect('validations');
+		
+		$qb->where($qb->expr()->in('n.id', $ids));
 
 		return $qb->getQuery()->getArrayResult();
 	}

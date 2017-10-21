@@ -67,6 +67,31 @@ class NodeRestController extends FOSRestController
 	}
 
 	/**
+	 * Get Route annotation
+	 * Get nodes by ids
+	 * @Get("/nodes/{ids}", requirements={"ids"= "\d+(?:,\d+)+"})
+	 */
+	public function getNodesByIdsAction($ids)
+	{
+		// New view
+		$view = $this->view();
+		
+		$serializer = $this->container->get('jms_serializer');
+
+		// Grabbing Entity manager & repository
+		$em		  = $this->getDoctrine()->getManager('psi_db');
+		$nodeRepo = $em->getRepository('AppBundle:Node');
+
+		// Find nodes by id
+		$arrayOfIds = explode(",", $ids);
+		$nodes 	  = $nodeRepo->findByIds($arrayOfIds);
+
+		// Return
+		$view->setData($nodes);
+		return $this->handleView($view);
+	}
+
+	/**
 	 * GET Route annotation.
 	 * Get nodes by term
 	 * @Get("/nodes/{term}", requirements={"term" = "\w+"})
