@@ -15,6 +15,7 @@ use AppBundle\Entity\Node;
 use AppBundle\Entity\Table_;
 use AppBundle\Entity\TableNode;
 use AppBundle\Entity\Validation;
+use AppBundle\Entity\FlatNode;
 
 class NodeRestController extends FOSRestController
 {
@@ -128,13 +129,20 @@ class NodeRestController extends FOSRestController
 		$validation->setValidatedName($data['validation']['validatedSyntaxonValidatedName']);
 		$rootNode->addValidation($validation);
 
+		// flatNode attributes
+		$geoJson = $data['geoJson'];
+		$flatLocation = $geoJson["features"][0]["geometry"];
+		$flatValidation = '';
+		$flatChildrenValidation = '';
+
+		// flatNode validation
+		$flatValidation = $validation->getRepository().'-'.$validation->getRepositoryIdTaxo();
+
 		// Iterate through nodes ; create children nodes and hydrate them
 		foreach ($data['nodes'] as $key => $node) {
 			${'node'.$key} = new Node('idiotaxon');
 			${'validation'.$key} = new Validation;
 			
-			$em->persist(${'node'.$key});
-			$em->persist(${'validation'.$key});
 			$rootNode->addChild(${'node'.$key});
 
 			${'node'.$key}->setFrontId($node['frontId']);
@@ -151,9 +159,31 @@ class NodeRestController extends FOSRestController
 
 			${'node'.$key}->addValidation(${'validation'.$key});
 
+			${'node'.$key}->setParent($rootNode);
+			${'validation'.$key}->setParentNode($rootNode);
+
+			$em->persist(${'node'.$key});
+			$em->persist(${'validation'.$key});
+
+			// flatNode childrenValidation
+			$flatChildrenValidation .= ${'validation'.$key}->getRepository().'-'.${'validation'.$key}->getRepositoryIdTaxo().' ';
+
 		}
 
-		// Flush & clear the EM
+		// Flush
+		$em->flush();
+		$em->clear();
+
+		// Create the FlatNode item
+		$flatNode = new FlatNode();
+		$em->persist($flatNode);
+		$flatNode->setNode($rootNode);
+		$flatNode->setNodeId($rootNode->getId());
+		$flatNode->setLocation($flatLocation);
+		$flatNode->setValidation($flatValidation);
+		$flatNode->setChildrenValidation($flatChildrenValidation);
+
+		// 2nd flush & clear the EM
 		$em->flush();
 		$em->clear();
 

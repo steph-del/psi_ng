@@ -126,3 +126,23 @@ fos_rest:
         default_engine: twig
     routing_loader:
         default_format: json
+
+# FOS elastica
+fos_elastica:
+    clients:
+        default: { host: localhost, port: 9200 }
+    indexes:
+        app:
+            index_name: nodes
+            types:
+                flatNode:
+                    properties:
+                        nodeId: { type: integer }
+                        location: { type: geo_shape}
+                        validation: { type: text }
+                        childrenValidation: { type: text }
+                    persistence:
+                        driver: orm
+                        model: AppBundle\Entity\FlatNode
+                        provider: ~
+                        finder: ~
