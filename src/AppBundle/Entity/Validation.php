@@ -15,6 +15,7 @@ use JMS\Serializer\Annotation\SerializedName;
  *
  * @ORM\Table(name="validation")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ValidationRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Validation
 {
@@ -34,6 +35,14 @@ class Validation
      * @ORM\JoinColumn(nullable=true)
      */
     private $node;
+
+    /**
+     * @var string
+     *
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Node")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private $parentNode;
 
     /**
      * @var string
@@ -250,5 +259,38 @@ class Validation
 
         return $this;
     }
+
+    /**
+     * Get node
+     * @return Node
+     */
+    public function getNode()
+    {
+        return $this->node;
+    }
+
+    /**
+     * Set parentNode
+     *
+     * @param Node $parentNode
+     *
+     * @return Validation
+     */
+    public function setParentNode($parentNode)
+    {
+        $this->parentNode = $parentNode;
+
+        return $this;
+    }
+
+    /**
+     * Get parentNode
+     * @return Node
+     */
+    public function getParentNode()
+    {
+        return $this->parentNode;
+    }
+
 }
 
