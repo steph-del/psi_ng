@@ -138,7 +138,7 @@ fos_elastica:
                 flatNode:
                     properties:
                         nodeId: { type: integer }
-                        location: { type: geo_shape}
+                        location: { type: geo_shape }
                         validation: { type: text }
                         childrenValidation: { type: text }
                     persistence:

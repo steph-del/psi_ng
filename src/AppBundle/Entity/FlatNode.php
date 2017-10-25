@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * FlatNode
  *
- * @ORM\Table(name="flat_node")
+ * @ORM\Table(name="psi_flat_node")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\FlatNodeRepository")
  */
 class FlatNode
