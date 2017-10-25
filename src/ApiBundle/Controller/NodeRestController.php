@@ -157,6 +157,15 @@ class NodeRestController extends FOSRestController
 		// flatNode attributes
 		$geoJson = $data['geoJson'];
 		$flatLocation = $geoJson["features"][0]["geometry"];
+		$flatTypeLocation = $geoJson["features"][0]["geometry"]["type"];
+		$flatLngLatLocation = $geoJson["features"][0]["geometry"]["coordinates"]; // Long Lat coordinates
+		$flatLatLngLocation = array();											  // Lat Long coordinates, needed for elasticsearch
+		if($flatTypeLocation == 'Point') {
+			array_push($flatLatLngLocation, $flatLngLatLocation[1]);
+			array_push($flatLatLngLocation, $flatLngLatLocation[0]);
+		}
+		$flatLocation['coordinates'] = $flatLatLngLocation;
+
 		$flatValidation = '';
 		$flatChildrenValidation = '';
 
@@ -195,10 +204,6 @@ class NodeRestController extends FOSRestController
 
 		}
 
-		// Flush
-		$em->flush();
-		$em->clear();
-
 		// Create the FlatNode item
 		$flatNode = new FlatNode();
 		$em->persist($flatNode);
@@ -208,7 +213,7 @@ class NodeRestController extends FOSRestController
 		$flatNode->setValidation($flatValidation);
 		$flatNode->setChildrenValidation($flatChildrenValidation);
 
-		// 2nd flush & clear the EM
+		// Flush & clear the EM
 		$em->flush();
 		$em->clear();
 
