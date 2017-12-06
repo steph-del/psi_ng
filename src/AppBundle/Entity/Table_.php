@@ -87,6 +87,26 @@ class Table_
     /**
      * @var string
      *
+     * @ORM\Column(name="enteredBy", type="string", length=256, nullable=false)
+     *
+     * @Expose
+     * @SerializedName("enteredBy")
+     */
+    private $enteredBy;
+
+    /**
+     * @ORM\Column(name="enteredAt", type="datetime")
+     *
+     * @var \DateTime
+     *
+     * @Expose
+     * @SerializedName("enteredAt")
+     */
+    private $enteredAt;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="lastUpdateBy", type="string", length=256, nullable=true)
      *
      * @Expose
@@ -244,6 +264,30 @@ class Table_
     public function getCreatedAt()
     {
         return $this->createdAt;
+    }
+
+    /**
+     * Set enteredAt
+     *
+     * @param \DateTime $enteredAt
+     *
+     * @return Table
+     */
+    public function setEnteredAt($enteredAt)
+    {
+        $this->enteredAt = $enteredAt;
+
+        return $this;
+    }
+
+    /**
+     * Get enteredAt
+     *
+     * @return \DateTime
+     */
+    public function getEnteredAt()
+    {
+        return $this->enteredAt;
     }
 
     /**

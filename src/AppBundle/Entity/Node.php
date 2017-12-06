@@ -154,11 +154,45 @@ class Node
      */
     private $coef;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="createdBy", type="string", length=256, nullable=false)
+     *
+     * @Expose
+     * @SerializedName("createdBy")
+     */
+    private $createdBy;
 
-    private $author;
-    private $authorWriter;
+    /**
+     * @ORM\Column(name="createdAt", type="datetime")
+     *
+     * @var \DateTime
+     *
+     * @Expose
+     * @SerializedName("createdAt")
+     */
+    private $createdAt;
 
-    private $date;
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="enteredBy", type="string", length=256, nullable=false)
+     *
+     * @Expose
+     * @SerializedName("enteredBy")
+     */
+    private $enteredBy;
+
+    /**
+     * @ORM\Column(name="enteredAt", type="datetime")
+     *
+     * @var \DateTime
+     *
+     * @Expose
+     * @SerializedName("enteredAt")
+     */
+    private $enteredAt;
 
     /**
      * Coef : ab/dom value
@@ -323,6 +357,18 @@ class Node
 
     public function setCoef($coef) { $this->coef = $coef; return $this->coef; }
     public function getCoef() { return $this->coef; }
+
+    public function setCreatedBy($createdBy) { $this->createdBy = $createdBy; return $this->createdBy; }
+    public function getCreatedBy() { return $this->createdBy; }
+
+    public function setCreatedAt($createdAt) { $this->createdAt = $createdAt; return $this->createdAt; }
+    public function getCreatedAt() { return $this->createdAt; }
+
+    public function setEnteredBy($enteredBy) { $this->enteredBy = $enteredBy; return $this->enteredBy; }
+    public function getEnteredBy() { return $this->enteredBy; }
+
+    public function setEnteredAt($enteredAt) { $this->enteredAt = $enteredAt; return $this->enteredAt; }
+    public function getEnteredAt() { return $this->enteredAt; }
 
     public function setRepository($repo) { $this->repository = $repo; return $this->repository; }
     public function getRepository() { return $this->repository; }
