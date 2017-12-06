@@ -165,9 +165,9 @@ class Node
     private $createdBy;
 
     /**
-     * @ORM\Column(name="createdAt", type="datetime")
+     * @ORM\Column(name="createdAt", type="date")
      *
-     * @var \DateTime
+     * @var \Date
      *
      * @Expose
      * @SerializedName("createdAt")
