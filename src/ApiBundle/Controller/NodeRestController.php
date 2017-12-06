@@ -145,6 +145,11 @@ class NodeRestController extends FOSRestController
 		$rootNode->setName('A synusy from my Angular app!');
 		$rootNode->setFrontId($data['frontId']);
 		$rootNode->setGeoJson($data['geoJson']);
+		$createdAt = \DateTime::createFromFormat('Y/m/d', $data['createdAt']);
+		$rootNode->setCreatedBy($data['createdBy']);
+		$rootNode->setCreatedAt($createdAt);
+		$rootNode->setEnteredBy($data['enteredBy']);
+		$rootNode->setEnteredAt(new \Datetime('now'));
 
 		$validation = new Validation;
 		$validation->setRepository('baseveg');
@@ -184,6 +189,10 @@ class NodeRestController extends FOSRestController
 			${'node'.$key}->setCoef($node['coef']);
 			${'node'.$key}->setRepository('baseflor');
 			${'node'.$key}->setGeoJson($data['geoJson']);
+			${'node'.$key}->setCreatedBy($data['createdBy']);
+			${'node'.$key}->setCreatedAt($createdAt);
+			${'node'.$key}->setEnteredBy($data['enteredBy']);
+			${'node'.$key}->setEnteredAt(new \Datetime('now'));
 
 			${'validation'.$key}->setRepository('baseflor');
 			${'validation'.$key}->setRepositoryIdTaxo($node['repositoryIdTaxo']);
