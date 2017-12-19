@@ -16,9 +16,16 @@ use AppBundle\Entity\Table_;
 use AppBundle\Entity\TableNode;
 use AppBundle\Entity\Validation;
 use AppBundle\Entity\FlatNode;
+use ApiBundle\Services\NodeService;
 
 class NodeRestController extends FOSRestController
 {
+	private $nodeService;
+
+    public function __construct(NodeService $nodeService)
+    {
+        $this->nodeService = $nodeService;
+    }
 
 	/**
 	 * GET Route annotation
@@ -139,10 +146,12 @@ class NodeRestController extends FOSRestController
 		$data = json_decode($request->getContent(), true);
 
 		// Create the root node and hydrate it
-		$rootNode = new Node('synusy');
+		$level = $data['level'];
+		$rootNode = new Node($level);
 		$em->persist($rootNode);
 		$rootNode->setRepository('baseveg');
 		$rootNode->setName('A synusy from my Angular app!');
+		$rootNode->setLevel($level);
 		$rootNode->setFrontId($data['frontId']);
 		$rootNode->setGeoJson($data['geoJson']);
 		$createdAt = \DateTime::createFromFormat('Y/m/d', $data['createdAt']);
@@ -159,68 +168,21 @@ class NodeRestController extends FOSRestController
 		$validation->setValidatedName($data['validation']['validatedSyntaxonValidatedName']);
 		$rootNode->addValidation($validation);
 
-		// flatNode attributes
-		$geoJson = $data['geoJson'];
-		$flatLocation = $geoJson["features"][0]["geometry"];
-		$flatTypeLocation = $geoJson["features"][0]["geometry"]["type"];
-		$flatLngLatLocation = $geoJson["features"][0]["geometry"]["coordinates"]; // Long Lat coordinates
-		$flatLatLngLocation = array();											  // Lat Long coordinates, needed for elasticsearch
-		if($flatTypeLocation == 'Point') {
-			array_push($flatLatLngLocation, $flatLngLatLocation[1]);
-			array_push($flatLatLngLocation, $flatLngLatLocation[0]);
-		}
-		$flatLocation['coordinates'] = $flatLatLngLocation;
-
-		$flatValidation = '';
-		$flatChildrenValidation = '';
-
-		// flatNode validation
-		$flatValidation = $validation->getRepository().'-'.$validation->getRepositoryIdTaxo();
-
-		// Iterate through nodes ; create children nodes and hydrate them
-		foreach ($data['nodes'] as $key => $node) {
-			${'node'.$key} = new Node('idiotaxon');
-			${'validation'.$key} = new Validation;
-			
-			$rootNode->addChild(${'node'.$key});
-
-			${'node'.$key}->setFrontId($node['frontId']);
-			${'node'.$key}->setName($node['name']);
-			${'node'.$key}->setCoef($node['coef']);
-			${'node'.$key}->setRepository('baseflor');
-			${'node'.$key}->setGeoJson($data['geoJson']);
-			${'node'.$key}->setCreatedBy($data['createdBy']);
-			${'node'.$key}->setCreatedAt($createdAt);
-			${'node'.$key}->setEnteredBy($data['enteredBy']);
-			${'node'.$key}->setEnteredAt(new \Datetime('now'));
-
-			${'validation'.$key}->setRepository('baseflor');
-			${'validation'.$key}->setRepositoryIdTaxo($node['repositoryIdTaxo']);
-			${'validation'.$key}->setRepositoryIdNomen($node['repositoryIdNomen']);
-			${'validation'.$key}->setInputName($node['inputName']);
-			${'validation'.$key}->setValidatedName($node['validatedName']);
-
-			${'node'.$key}->addValidation(${'validation'.$key});
-
-			${'node'.$key}->setParent($rootNode);
-			${'validation'.$key}->setParentNode($rootNode);
-
-			$em->persist(${'node'.$key});
-			$em->persist(${'validation'.$key});
-
-			// flatNode childrenValidation
-			$flatChildrenValidation .= ${'validation'.$key}->getRepository().'-'.${'validation'.$key}->getRepositoryIdTaxo().' ';
-
+		// Iterate through layers
+		$layers = ($data['layerNodes']);
+		$layersCount = count($layers);
+		
+		if($level === 'synusy' && $layersCount > 1) {
+			// A synusy with several layers (not allowed)
+			throw new HttpException(500, "Une synusie ne peut avoir plusieurs strates");
 		}
 
-		// Create the FlatNode item
-		$flatNode = new FlatNode();
-		$em->persist($flatNode);
-		$flatNode->setNode($rootNode);
-		$flatNode->setNodeId($rootNode->getId());
-		$flatNode->setLocation($flatLocation);
-		$flatNode->setValidation($flatValidation);
-		$flatNode->setChildrenValidation($flatChildrenValidation);
+		// Attach (and persist) children nodes from layers form data
+		$rootNode = $this->nodeService->attachChildrenNodes($rootNode, $layers, $em);
+//print_r($this->nodeService->dumpNode($rootNode));
+//die;
+		// Create (and persist) FlatNode
+		$flatNode = $this->nodeService->createFlatData($rootNode, $em);
 
 		// Flush & clear the EM
 		$em->flush();
