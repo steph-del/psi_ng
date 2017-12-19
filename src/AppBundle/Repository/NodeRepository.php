@@ -21,6 +21,10 @@ class NodeRepository extends \Doctrine\ORM\EntityRepository
 		   ->addSelect('validations')
 		   ->where('n.id = :id')
 		   ->setParameter('id', $id)
+		   ->leftJoin('children.children', 'grandchildren')
+		   ->leftJoin('grandchildren.validations', 'gcValidations')
+		   ->addSelect('grandchildren')
+		   ->addSelect('gcValidations')
 		;
 
 		return $qb->getQuery()->getArrayResult();
@@ -36,7 +40,12 @@ class NodeRepository extends \Doctrine\ORM\EntityRepository
 		   ->leftJoin('n.validations', 'validations')
 		   ->addSelect('children')
 		   ->addSelect('childrenValidations')
-		   ->addSelect('validations');
+		   ->addSelect('validations')
+		   ->leftJoin('children.children', 'grandchildren')
+		   ->leftJoin('grandchildren.validations', 'gcValidations')
+		   ->addSelect('grandchildren')
+		   ->addSelect('gcValidations')
+		;
 
 		$qb->where($qb->expr()->in('n.id', $ids));
 
