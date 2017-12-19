@@ -5,6 +5,7 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Gedmo\Mapping\Annotation as Gedmo;
 use AppBundle\Entity\Validation;
 use JMS\Serializer\Annotation\ExclusionPolicy;
@@ -33,8 +34,8 @@ class Node
 {
     CONST IDIOTAXON_NAME = 'idiotaxon';
     CONST SYNUSY_NAME    = 'synusy';
-    CONST MICROC_NAME    = 'microC';
-    CONST PHYTOC_NAME    = 'phytoC';
+    CONST MICROC_NAME    = 'microcenosis';
+    CONST PHYTOC_NAME    = 'phytocenosis';
 
     CONST IDIOTAXON      = ['name' => self::IDIOTAXON_NAME,
                             'canContain' => array(null)];
@@ -61,7 +62,9 @@ class Node
                 $this->canContain = $constLevel['canContain'];
                 break;
             } else {
-                //if($keyConstLevel == count(self::LEVELS)) echo('Level invalide');die;
+                if($keyConstLevel == count(self::LEVELS) -1) {
+                    throw new HttpException(500, "The level '".$level."' does not exist");
+                };
             }
         }
     }
@@ -103,6 +106,17 @@ class Node
     private $level;
 
     /**
+     * Layer : node layer
+     *
+     * @var string
+     * @ORM\Column(name="layer", type="string", length=2, nullable=true)
+     *
+     * @Expose
+     */
+     
+    private $layer;
+
+    /**
      * CanContain : which levels can this node contain ?
      * Not persisted id Db
      *
@@ -117,7 +131,7 @@ class Node
      * Repository : the name of the repository (référentiel)
      *
      * @var string
-     * @ORM\Column(name="repository", type="string", length=128)
+     * @ORM\Column(name="repository", type="string", length=128, nullable=true)
      *
      * @Expose
      */
@@ -300,6 +314,9 @@ class Node
 
     public function setLevel($level) { $this->level = $level; }
     public function getLevel() { return $this->level; }
+
+    public function setLayer($layer) { $this->layer = $layer; }
+    public function getLayer() { return $this->layer; }
 
     public function setName($name) { $this->name = $name; return $this->name; }
     public function getName() { return $this->name; }
