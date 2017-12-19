@@ -73,6 +73,9 @@ class TableRestController extends FOSRestController
 		$table 		= $serializer->deserialize($dataJson, Table::class, 'json');
 
 		$table->setCreatedAt(new \DateTime('now'));
+		$table->setEnteredAt(new \DateTime('now'));
+		$table->setLastUpdateBy('Stéphane');
+		$table->setLastUpdateAt(new \DateTime('now'));
 
 		$tns = $table->getTNodes();
 		foreach ($tns as $tn) {
