@@ -89,6 +89,7 @@ class NodeService {
 			${'node'.$key}->setFrontId($node['frontId']);
 			${'node'.$key}->setName($node['name']);
 			${'node'.$key}->setCoef($node['coef']);
+			${'node'.$key}->setLayer($rootNode->getLayer());
 			${'node'.$key}->setRepository('baseflor');
 
 			${'validation'.$key}->setRepository('baseflor');
