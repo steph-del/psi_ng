@@ -17,6 +17,7 @@ use AppBundle\Entity\TableNode;
 use AppBundle\Entity\Validation;
 use AppBundle\Entity\FlatNode;
 use ApiBundle\Services\NodeService;
+use AppBundle\Entity\NodeMeta;
 
 class NodeRestController extends FOSRestController
 {
@@ -149,6 +150,16 @@ class NodeRestController extends FOSRestController
 		$level = $data['level'];
 		$rootNode = new Node($level);
 		$em->persist($rootNode);
+
+		$meta = $data['meta'];
+
+		foreach ($meta as $k => $m) {
+			${'nodeMeta'.$k} = new NodeMeta();
+			${'nodeMeta'.$k}->setName($m['name']);
+			${'nodeMeta'.$k}->setValue($m['value']);
+			$rootNode->addMeta(${'nodeMeta'.$k});
+		}
+
 		$rootNode->setRepository('baseveg');
 		$rootNode->setName('A synusy from my Angular app!');
 		$rootNode->setLevel($level);
@@ -179,8 +190,7 @@ class NodeRestController extends FOSRestController
 
 		// Attach (and persist) children nodes from layers form data
 		$rootNode = $this->nodeService->attachChildrenNodes($rootNode, $layers, $em);
-//print_r($this->nodeService->dumpNode($rootNode));
-//die;
+
 		// Create (and persist) FlatNode
 		$flatNode = $this->nodeService->createFlatData($rootNode, $em);
 

@@ -55,6 +55,7 @@ class Node
         $this->validation   = new ArrayCollection();
         $this->parents      = new ArrayCollection();
         $this->tables       = new ArrayCollection();
+        $this->meta         = new ArrayCollection();
 
         foreach (self::LEVELS as $keyConstLevel => $constLevel) {
             //var_dump($level.' - '.$constLevel['name']);
@@ -226,6 +227,14 @@ class Node
 
     private $biblio;
     private $isDiagnosis;
+
+    /**
+     *
+     * @ORM\OneToMany(targetEntity="NodeMeta", mappedBy="node", cascade={"persist"})
+     *
+     * @Expose
+     * @Type("ArrayCollection<AppBundle\Entity\NodeMeta>")
+     */
     private $meta;
 
     /**
@@ -323,6 +332,10 @@ class Node
 
     public function setCanContain($canContain) { $this->canContain = $canContain; return $this->canContain; }
     public function canContain() { return $this->canContain; }
+
+    public function addMeta(NodeMeta $meta) { $this->meta[] = $meta; $meta->setNode($this); }
+    public function removeMeta($meta) { unset($this->meta[$meta]); }
+    public function getMeta() { return $this->meta; }
 
     public function addChild($childNode)
     {
