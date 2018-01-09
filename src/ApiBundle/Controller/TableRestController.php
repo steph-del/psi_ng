@@ -92,4 +92,50 @@ class TableRestController extends FOSRestController
 		$view->setData($table);
 		return $this->handleView($view);
 	}
+
+	/**
+	 * PUT Route annotation
+	 * Import a table from Sophy csv file
+	 * @Put("/import/sophy")
+	 */
+	public function putSophyTableAction(Request $request)
+	{
+		$em		  	= $this->getDoctrine()->getManager('psi_db');
+		$nodeRepo 	= $em->getRepository('AppBundle:Node');
+		$serializer = $this->container->get('jms_serializer');
+		//$dataJson 	= $request->query->get('table');
+		$dataJson	= $request->getContent();
+		$data       = json_decode($dataJson, true);
+
+		$nodes = array();
+		foreach ($data as $key => $tNode) {
+			$node = $serializer->deserialize(json_encode($tNode), TableNode::class, 'json');
+print_r($node);die;
+			foreach ($tNode->getNode() as $key => $node) {
+				array_push($nodes, $node);
+			}
+		}
+
+		/*$table 		= $serializer->deserialize($dataJson, Table::class, 'json');
+
+		$table->setCreatedAt(new \DateTime('now'));
+		$table->setEnteredAt(new \DateTime('now'));
+		$table->setLastUpdateBy('Stéphane');
+		$table->setLastUpdateAt(new \DateTime('now'));
+
+		$tns = $table->getTNodes();
+		foreach ($tns as $tn) {
+			$tn->setTable($table);
+			$nodeId = $tn->getNode()->getId();
+			$dbNode = $nodeRepo->find($nodeId);
+			$tn->setNode($dbNode);
+		}
+
+		$em->persist($table);
+		$em->flush();*/
+
+		$view = $this->view();
+		$view->setData($nodes);
+		return $this->handleView($view);
+	}
 }

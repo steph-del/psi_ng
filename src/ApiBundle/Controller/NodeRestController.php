@@ -151,19 +151,22 @@ class NodeRestController extends FOSRestController
 		$rootNode = new Node($level);
 		$em->persist($rootNode);
 
-		$meta = $data['meta'];
+		$meta = null;
+		if(isset($data['meta'])) {
+			$meta = $data['meta'];
 
-		foreach ($meta as $k => $m) {
-			${'nodeMeta'.$k} = new NodeMeta();
-			${'nodeMeta'.$k}->setName($m['name']);
-			${'nodeMeta'.$k}->setValue($m['value']);
-			$rootNode->addMeta(${'nodeMeta'.$k});
+			foreach ($meta as $k => $m) {
+				${'nodeMeta'.$k} = new NodeMeta();
+				${'nodeMeta'.$k}->setName($m['name']);
+				${'nodeMeta'.$k}->setValue($m['value']);
+				$rootNode->addMeta(${'nodeMeta'.$k});
+			}
 		}
 
 		$rootNode->setRepository('baseveg');
 		$rootNode->setName('A synusy from my Angular app!');
 		$rootNode->setLevel($level);
-		$rootNode->setFrontId($data['frontId']);
+		//$rootNode->setFrontId($data['frontId']);
 		$rootNode->setGeoJson($data['geoJson']);
 		$createdAt = \DateTime::createFromFormat('Y/m/d', $data['createdAt']);
 		$rootNode->setCreatedBy($data['createdBy']);
@@ -171,13 +174,15 @@ class NodeRestController extends FOSRestController
 		$rootNode->setEnteredBy($data['enteredBy']);
 		$rootNode->setEnteredAt(new \Datetime('now'));
 
-		$validation = new Validation;
-		$validation->setRepository('baseveg');
-		$validation->setRepositoryIdTaxo($data['validation']['validatedSyntaxonIdTaxo']);
-		$validation->setRepositoryIdNomen($data['validation']['validatedSyntaxonIdNomen']);
-		$validation->setInputName($data['validation']['validatedSyntaxonInputName']);
-		$validation->setValidatedName($data['validation']['validatedSyntaxonValidatedName']);
-		$rootNode->addValidation($validation);
+		if(isset($data['validation'])) {
+			$validation = new Validation;
+			$validation->setRepository('baseveg');
+			$validation->setRepositoryIdTaxo($data['validation']['validatedSyntaxonIdTaxo']);
+			$validation->setRepositoryIdNomen($data['validation']['validatedSyntaxonIdNomen']);
+			$validation->setInputName($data['validation']['validatedSyntaxonInputName']);
+			$validation->setValidatedName($data['validation']['validatedSyntaxonValidatedName']);
+			$rootNode->addValidation($validation);
+		}
 
 		// Iterate through layers
 		$layers = ($data['layerNodes']);
