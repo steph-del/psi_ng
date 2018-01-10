@@ -12,6 +12,7 @@ use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation\Accessor;
 
 
 /*
@@ -57,8 +58,12 @@ class Node
         $this->tables       = new ArrayCollection();
         $this->meta         = new ArrayCollection();
 
+        $this->canContainSetter($level);
+    }
+
+    private function canContainSetter($level)
+    {
         foreach (self::LEVELS as $keyConstLevel => $constLevel) {
-            //var_dump($level.' - '.$constLevel['name']);
             if($level === $constLevel['name']) {
                 $this->canContain = $constLevel['canContain'];
                 break;
@@ -248,6 +253,7 @@ class Node
      *
      * @Expose
      * @Type("ArrayCollection<AppBundle\Entity\Node>")
+     * @Accessor(getter="getChildren", setter="addChildren")
      */
     private $children;
 
@@ -257,6 +263,7 @@ class Node
      *
      * @Expose
      * @Type("ArrayCollection<AppBundle\Entity\Validation>")
+     * @Accessor(getter="getValidations", setter="addValidations")
      */
     private $validations;
 
@@ -341,13 +348,31 @@ class Node
     {
         if($childNode instanceof Node)
         {
+            // canContain can be empty if a Node is initialized without its constructor
+            // It happens when JMS serializer deserialize a Node, so we have to add canContain manually
+            if(empty($this->canContain)) {
+                $this->canContainSetter($this->level);
+            }
             if(in_array($childNode->getLevel(), $this->canContain)) {
                 $this->children[] = $childNode;
+                $childNode->setParent($this);
             } else {
                 echo('A(n)'.$this->getLevel().' entity type can\'t contain a(n) '.$childNode->getLevel().' entity type'."\n");die;
             }
         } else {
             echo('Child must be an instance of Node');die;
+        }
+    }
+
+    public function addChildren($children)
+    {
+        if($children instanceof ArrayCollection)
+        {
+            foreach ($children as $key => $child) {
+                $this->addChild($child);
+            }
+        } else {
+            echo('Children must be an instance of ArrayCollection');die;
         }
     }
 
@@ -373,7 +398,18 @@ class Node
             $validation->setNode($this);
             $this->validations[] = $validation;
         } else {
-            throw new Exception("Error Processing Request. $validation is not of type Validation (in Node.php)", 500);
+            throw new HttpException(500, "Error Processing Request. $validation is not of type Validation (in Node.php)");
+        }
+    }
+    public function addValidations($validations)
+    {
+        if($validations instanceof ArrayCollection)
+        {
+            foreach ($validations as $key => $validation) {
+                $this->addValidation($validation);
+            }
+        } else {
+            throw new HttpException(500, "Error Processing Request. $validations is not of type ArrayCollection (in Node.php)");
         }
     }
     public function removeValidation($validation)
