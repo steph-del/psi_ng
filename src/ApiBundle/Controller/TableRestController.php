@@ -103,20 +103,10 @@ class TableRestController extends FOSRestController
 		$em		  	= $this->getDoctrine()->getManager('psi_db');
 		$nodeRepo 	= $em->getRepository('AppBundle:Node');
 		$serializer = $this->container->get('jms_serializer');
-		//$dataJson 	= $request->query->get('table');
 		$dataJson	= $request->getContent();
-		$data       = json_decode($dataJson, true);
+		$table 		= $serializer->deserialize($dataJson, Table::class, 'json');
 
-		$nodes = array();
-		foreach ($data as $key => $tNode) {
-			$node = $serializer->deserialize(json_encode($tNode), TableNode::class, 'json');
-print_r($node);die;
-			foreach ($tNode->getNode() as $key => $node) {
-				array_push($nodes, $node);
-			}
-		}
-
-		/*$table 		= $serializer->deserialize($dataJson, Table::class, 'json');
+		$em->persist($table);
 
 		$table->setCreatedAt(new \DateTime('now'));
 		$table->setEnteredAt(new \DateTime('now'));
@@ -124,18 +114,15 @@ print_r($node);die;
 		$table->setLastUpdateAt(new \DateTime('now'));
 
 		$tns = $table->getTNodes();
-		foreach ($tns as $tn) {
+		foreach ($tns as $key => $tn) {
 			$tn->setTable($table);
-			$nodeId = $tn->getNode()->getId();
-			$dbNode = $nodeRepo->find($nodeId);
-			$tn->setNode($dbNode);
+			$tn->setPosition($key);
 		}
 
-		$em->persist($table);
-		$em->flush();*/
+		$em->flush();
 
 		$view = $this->view();
-		$view->setData($nodes);
+		$view->setData($table);
 		return $this->handleView($view);
 	}
 }
