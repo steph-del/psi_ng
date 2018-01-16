@@ -16,9 +16,17 @@ use AppBundle\Entity\Table_ as Table;
 use AppBundle\Entity\TableNode;
 use AppBundle\Entity\Validation;
 use AppBundle\Form\Table_Type as TableType;
+use ApiBundle\Services\NodeService;
 
 class TableRestController extends FOSRestController
 {
+
+	private $nodeService;
+
+	public function __construct(NodeService $nodeService)
+    {
+        $this->nodeService = $nodeService;
+    }
 
 	/**
 	 * Get Route annotation
@@ -117,6 +125,9 @@ class TableRestController extends FOSRestController
 		foreach ($tns as $key => $tn) {
 			$tn->setTable($table);
 			$tn->setPosition($key);
+
+			// Create (and persist) FlatNode
+			${'flatNode'.$key} = $this->nodeService->createFlatData($tn->getNode(), $em);
 		}
 
 		$em->flush();
