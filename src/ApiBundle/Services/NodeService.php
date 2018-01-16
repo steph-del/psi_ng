@@ -143,9 +143,11 @@ class NodeService {
 		$flatValidation = '';
 		$flatChildrenValidation = '';
 		
-		foreach ($nodeValidations as $key => $validation) {
-			$flatValidation .= $validation->getRepository().'-'.$validation->getRepositoryIdTaxo();
-			if($key != count($nodeValidations)-1) $flatValidation.=' ';
+		if($nodeValidations) {
+			foreach ($nodeValidations as $key => $validation) {
+				$flatValidation .= $validation->getRepository().'-'.$validation->getRepositoryIdTaxo();
+				if($key != count($nodeValidations)-1) $flatValidation.=' ';
+			}
 		}
 
 		// Children validation
