@@ -85,14 +85,13 @@ class NodeService {
 			$rootNode->addChild(${'node'.$key});
 			${'node'.$key}->setParent($rootNode);
 			//${'node'.$key}->setParentNode($rootNode);
-
 			${'node'.$key}->setFrontId($node['frontId']);
-			${'node'.$key}->setName($node['name']);
+			//${'node'.$key}->setName($node['name']);
 			${'node'.$key}->setCoef($node['coef']);
 			${'node'.$key}->setLayer($rootNode->getLayer());
-			${'node'.$key}->setRepository('baseflor');
+			${'node'.$key}->setRepository($node['repository']);
 
-			${'validation'.$key}->setRepository('baseflor');
+			${'validation'.$key}->setRepository($node['repository']);
 			${'validation'.$key}->setRepositoryIdTaxo($node['repositoryIdTaxo']);
 			${'validation'.$key}->setRepositoryIdNomen($node['repositoryIdNomen']);
 			${'validation'.$key}->setInputName($node['inputName']);
