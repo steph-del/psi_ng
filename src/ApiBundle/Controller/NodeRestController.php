@@ -168,7 +168,7 @@ class NodeRestController extends FOSRestController
 		$rootNode->setLevel($level);
 		//$rootNode->setFrontId($data['frontId']);
 		$rootNode->setGeoJson($data['geoJson']);
-		$createdAt = \DateTime::createFromFormat('Y/m/d', $data['createdAt']);
+		$createdAt = new \Datetime('now');//\DateTime::createFromFormat('Y/m/d', $data['createdAt']);
 		$rootNode->setCreatedBy($data['createdBy']);
 		$rootNode->setCreatedAt($createdAt);
 		$rootNode->setEnteredBy($data['enteredBy']);
@@ -177,10 +177,10 @@ class NodeRestController extends FOSRestController
 		if(isset($data['validation'])) {
 			$validation = new Validation;
 			$validation->setRepository('baseveg');
-			$validation->setRepositoryIdTaxo($data['validation']['validatedSyntaxonIdTaxo']);
-			$validation->setRepositoryIdNomen($data['validation']['validatedSyntaxonIdNomen']);
-			$validation->setInputName($data['validation']['validatedSyntaxonInputName']);
-			$validation->setValidatedName($data['validation']['validatedSyntaxonValidatedName']);
+			$validation->setRepositoryIdTaxo($data['validation']['citedSyntaxonIdTaxo']);
+			$validation->setRepositoryIdNomen($data['validation']['citedSyntaxonIdNomen']);
+			$validation->setInputName($data['validation']['citedSyntaxonInputName']);
+			$validation->setValidatedName($data['validation']['citedSyntaxonValidatedName']);
 			$rootNode->addValidation($validation);
 		}
 
